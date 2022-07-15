@@ -1,13 +1,5 @@
 public class ObjectsAndFields {
     
-    /*
-https://jungleeforce.wordpress.com/2013/06/07/extracting-list-of-all-the-objects-standard-custom-in-salesforce/
-https://salesforce.stackexchange.com/questions/48920/dynamic-picklists-of-objects-its-fields/48936#48936
-https://salesforce.stackexchange.com/questions/100668/retrieve-api-names-of-all-object-in-salesforce-org-using-soql
-https://developer.secure.force.com/cookbook/recipe/retrieve-a-list-of-objects-using-apex
-http://www.infallibletechie.com/2015/08/how-to-get-all-field-names-in-all.html  
-*/
-    
     public static void getObjects()
     {
         Map<String, Schema.SObjectType> gd = Schema.getGlobalDescribe(); 
@@ -31,9 +23,6 @@ http://www.infallibletechie.com/2015/08/how-to-get-all-field-names-in-all.html
         sortedNames.sort();
         for(String name : sortedNames)
             System.debug('Standard object: ' + name);
-        
-        // Schema.DescribeSObjectResult r1 = objectType.getDescribe();   
-        // r1.getName()
         
     }
     
@@ -90,22 +79,30 @@ http://www.infallibletechie.com/2015/08/how-to-get-all-field-names-in-all.html
     
     public static integer getFieldCountForObject(string objName)
     {            
-        
-        Map<String, Schema.SObjectType> m = Schema.getGlobalDescribe() ;
-        Schema.SObjectType objectType = m.get(objName);
-        Schema.DescribeSObjectResult r1 = objectType.getDescribe();   
-        List<Schema.SObjectField> fields = r1.fields.getMap().values();
-        
-        return fields.size();
+        integer numberOfFields;
+        try{
+            numberOfFields = Schema.getGlobalDescribe().get(objName).getDescribe().fields.getMap().values().size();   
+        }
+        catch(Exception e)
+        {
+            numberOfFields = Null;
+        }
+        return numberOfFields;
     }
     
     
     
     
     public static integer getNumberOfRecordsForObject(string objectName)
-    {        
+    {   
+        try{     
         AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName );
         return Integer.valueOf(groupedResults[0].get('recordCount'));
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
     }
     
     public static integer getNumberOfRecordsForObjectWhereFieldNotNull(string objectName, string fieldName)
@@ -120,6 +117,4 @@ http://www.infallibletechie.com/2015/08/how-to-get-all-field-names-in-all.html
         }
     }
     
-    
-
 }
