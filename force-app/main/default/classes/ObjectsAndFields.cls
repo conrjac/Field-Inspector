@@ -52,16 +52,18 @@ http://www.infallibletechie.com/2015/08/how-to-get-all-field-names-in-all.html
         Map<String , Schema.SObjectField > mapFieldList = r1.fields.getMap();    
         for ( Schema.SObjectField field : mapFieldList.values() ) {    
             Schema.DescribeFieldResult fieldResult = field.getDescribe();    
-            if ( fieldResult.isAccessible() ) {    
+          
                 System.debug(fieldResult.getName());
                 Field__c f = new Field__c();
                 f.Name = fieldResult.getName();
                 f.Label__c = fieldResult.getLabel();
                 f.Type__c = String.valueOf(fieldResult.getType());
-                fields.add(new Field__c());
-            }   
+                f.Object__c = objectRecord.Id;
+                fields.add(f);
+       
         }
-        Insert fields;
+
+        List<Database.SaveResult> insertResults = Database.insert(fields, false);
     }
     
     
@@ -101,43 +103,23 @@ http://www.infallibletechie.com/2015/08/how-to-get-all-field-names-in-all.html
     
     
     public static integer getNumberOfRecordsForObject(string objectName)
-    {
+    {        
         AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName );
         return Integer.valueOf(groupedResults[0].get('recordCount'));
     }
     
     public static integer getNumberOfRecordsForObjectWhereFieldNotNull(string objectName, string fieldName)
     {    
+        try{
         AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName + ' WHERE ' + fieldName + ' != NULL');
         return Integer.valueOf(groupedResults[0].get('recordCount'));
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
     }
     
     
-    /*
-public static void getFieldsForObject(Schema.SObjectType objectType)
-{
-List < Schema.SObjectType > gd = Schema.getGlobalDescribe().Values();      
-Map<String , Schema.SObjectType > globalDescription = Schema.getGlobalDescribe();   
 
-for ( Schema.SObjectType f : gd ) {  
-
-Schema.sObjectType objType = globalDescription.get(f.getDescribe().getName() );  
-Schema.DescribeSObjectResult r1 = objType.getDescribe();   
-Map<String , Schema.SObjectField > mapFieldList = r1.fields.getMap();    
-
-for ( Schema.SObjectField field : mapFieldList.values() ) {    
-
-Schema.DescribeFieldResult fieldResult = field.getDescribe();    
-
-if ( fieldResult.isAccessible() ) {    
-
-System.debug('Field Name is ' + objType + '.' + fieldResult.getName() );  
-
-}   
-
-}  
-
-}
-}
-*/
 }
