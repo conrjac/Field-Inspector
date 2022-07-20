@@ -1,4 +1,4 @@
-public class ObjectsAndFields {
+public class ObjectAndFieldService {
     
     public static void getObjects()
     {
@@ -9,20 +9,20 @@ public class ObjectsAndFields {
         {
             Schema.DescribeSObjectResult ds = d.getDescribe();
             if(!ds.isCreateable())
-                continue;
+            continue;
             if(ds.isCustom() == false && ds.getRecordTypeInfos().size() > 0)
-                standardObjects.add(ds.getName());
+            standardObjects.add(ds.getName());
             else if(ds.isCustom())
-                customObjects.add(ds.getName());
+            customObjects.add(ds.getName());
         }
         List<String> sortedNames = new List<String>(customObjects);
         sortedNames.sort();
         for(String name : sortedNames)
-            System.debug('Custom object: ' + name);
+        System.debug('Custom object: ' + name);
         sortedNames = new List<String>(standardObjects);
         sortedNames.sort();
         for(String name : sortedNames)
-            System.debug('Standard object: ' + name);
+        System.debug('Standard object: ' + name);
         
     }
     
@@ -36,32 +36,49 @@ public class ObjectsAndFields {
         
         Object__c objectRecord = [SELECT Id, Name FROM Object__c WHERE Name = :r1.getName() LIMIT 1];
         
+        if(objectRecord == NULL)
+        {
+            Object__c newObjectRecord = new Object__c(Name = r1.getName());
+            insert newObjectRecord;
+            objectRecord = newObjectRecord;
+        }
+        
+        
         List<Field__c> fields = new List<Field__c>();
         
         Map<String , Schema.SObjectField > mapFieldList = r1.fields.getMap();    
         for ( Schema.SObjectField field : mapFieldList.values() ) {    
             Schema.DescribeFieldResult fieldResult = field.getDescribe();    
-          
-                System.debug(fieldResult.getName());
-                Field__c f = new Field__c();
-                f.Name = fieldResult.getName();
-                f.Label__c = fieldResult.getLabel();
-                f.Type__c = String.valueOf(fieldResult.getType());
-                f.Object__c = objectRecord.Id;
-                fields.add(f);
-       
+            
+            System.debug(fieldResult.getName());
+            Field__c f = new Field__c();
+            f.Name = fieldResult.getName();
+            f.Label__c = fieldResult.getLabel();
+            f.Type__c = String.valueOf(fieldResult.getType());
+            f.Object__c = objectRecord.Id;
+            fields.add(f);
+            
         }
-
+        
         List<Database.SaveResult> insertResults = Database.insert(fields, false);
     }
     
+    
+    public static object__c getObjectDetails(object__c obj)
+    {
+        if(obj.Name != Null)
+        {        Schema.SObjectType objectType = Schema.getGlobalDescribe().get(obj.Name);
+            Schema.DescribeSObjectResult schemaObject = objectType.getDescribe();       
+            obj.Label__c = schemaObject.getLabel();
+            obj.Custom__c = schemaObject.isCustom();
+        }   
+        return obj;  
+    }
     
     public static field__c getFieldDetails(field__c f, string objectName)
     {
         if((f != null) && (objectName != null))
         {
-            
-            
             Schema.DescribeSObjectResult objectDetails = Schema.getGlobalDescribe().get(objectName).getDescribe();   
             Schema.SObjectField fieldDetails = objectDetails.fields.getMap().get(f.name);
             
@@ -71,6 +88,7 @@ public class ObjectsAndFields {
                 f.Name = fieldResult.getName();
                 f.Label__c = fieldResult.getLabel();
                 f.Type__c = String.valueOf(fieldResult.getType());
+                f.Custom__c = fieldResult.isCustom();
             }
         }
         return f;
@@ -90,14 +108,11 @@ public class ObjectsAndFields {
         return numberOfFields;
     }
     
-    
-    
-    
     public static integer getNumberOfRecordsForObject(string objectName)
     {   
         try{     
-        AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName );
-        return Integer.valueOf(groupedResults[0].get('recordCount'));
+            AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName );
+            return Integer.valueOf(groupedResults[0].get('recordCount'));
         }
         catch(Exception e)
         {
@@ -108,8 +123,8 @@ public class ObjectsAndFields {
     public static integer getNumberOfRecordsForObjectWhereFieldNotNull(string objectName, string fieldName)
     {    
         try{
-        AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName + ' WHERE ' + fieldName + ' != NULL');
-        return Integer.valueOf(groupedResults[0].get('recordCount'));
+            AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName + ' WHERE ' + fieldName + ' != NULL');
+            return Integer.valueOf(groupedResults[0].get('recordCount'));
         }
         catch(Exception e)
         {

@@ -4,17 +4,17 @@ public class ObjectTriggerHandler implements TriggerHandler {
         
         for(Object__c o : newObjects)
         {
-            o.Number_of_Records__c = ObjectsAndFields.getNumberOfRecordsForObject(o.Name);
+            o.Number_of_Records__c = ObjectAndFieldService.getNumberOfRecordsForObject(o.Name);
             
-             o.Number_of_Fields__c = ObjectsAndFields.getFieldCountForObject(o.Name);
+             o.Number_of_Fields__c = ObjectAndFieldService.getFieldCountForObject(o.Name);
         }
     }
     public void beforeUpdate(List<Object__c> oldObjects, List<Object__c> newObjects, Map<ID, SObject> oldAccountMap, Map<ID, SObject> newAccountMap) {
         for(Object__c o : newObjects)
         {
-            o.Number_of_Records__c = ObjectsAndFields.getNumberOfRecordsForObject(o.Name);
+            o.Number_of_Records__c = ObjectAndFieldService.getNumberOfRecordsForObject(o.Name);
             
-            o.Number_of_Fields__c = ObjectsAndFields.getFieldCountForObject(o.Name);
+            o.Number_of_Fields__c = ObjectAndFieldService.getFieldCountForObject(o.Name);
         }
     }
     public void beforeDelete(List<Object__c> oldAccounts, Map<ID, SObject> oldAccountMap) {

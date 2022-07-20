@@ -28,8 +28,8 @@ public class FieldTriggerHandler implements TriggerHandler {
         for(Field__c f : newFields)
         {
             Object__c relatedObject = objectDetails.get(f.Object__c);
-            f = ObjectsAndFields.getFieldDetails(f, relatedObject.Name);
-       		f.Number_of_Records_Populated__c = ObjectsAndFields.getNumberOfRecordsForObjectWhereFieldNotNull(relatedObject.Name, f.Name);
+            f = ObjectAndFieldService.getFieldDetails(f, relatedObject.Name);
+       		f.Number_of_Records_Populated__c = ObjectAndFieldService.getNumberOfRecordsForObjectWhereFieldNotNull(relatedObject.Name, f.Name);
         }
     }
 
