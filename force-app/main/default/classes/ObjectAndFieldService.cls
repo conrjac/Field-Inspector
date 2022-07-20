@@ -81,6 +81,7 @@ public class ObjectAndFieldService {
             Schema.DescribeSObjectResult schemaObject = objectType.getDescribe();       
             obj.Label__c = schemaObject.getLabel();
             obj.Custom__c = schemaObject.isCustom();
+            obj.Number_of_Fields__c = schemaObject.fields.getMap().values().size();  
         }   
         return obj;  
     }
@@ -106,28 +107,20 @@ public class ObjectAndFieldService {
     
     
     public static integer getFieldCountForObject(string objName)
-    {            
-        integer numberOfFields;
-        try{
-            numberOfFields = DESCRIBEOBJECTS.get(objName).getDescribe().fields.getMap().values().size();   
+    {           
+        if(OBJECTS.containsKey(objName))
+        { 
+            integer numberOfFields;
+            try{
+                numberOfFields = DESCRIBEOBJECTS.get(objName).getDescribe().fields.getMap().values().size();   
+            }
+            catch(Exception e)
+            {
+                numberOfFields = Null;
+            }
+            return numberOfFields;
         }
-        catch(Exception e)
-        {
-            numberOfFields = Null;
-        }
-        return numberOfFields;
-    }
-    
-    public static integer getNumberOfRecordsForObject(string objectName)
-    {   
-        try{     
-            AggregateResult[] groupedResults = Database.query('SELECT COUNT(Id)recordCount FROM ' + objectName );
-            return Integer.valueOf(groupedResults[0].get('recordCount'));
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
+        return Null;
     }
     
     public static integer getNumberOfRecordsForObjectWhereFieldNotNull(string objectName, string fieldName)
