@@ -5,6 +5,14 @@ public class ObjectAndFieldService {
         DESCRIBEOBJECTS = Schema.getGlobalDescribe(); 
     }
     
+    public static final Map<String, Object__c> OBJECTS;
+    static{
+        OBJECTS = New Map<String, Object__c>();
+        For(Object__c obj : [SELECT Id, Name FROM Object__c])
+        {
+            OBJECTS.put(obj.Name, obj);
+        }
+    }
     
     public static void getObjects()
     {
@@ -36,7 +44,7 @@ public class ObjectAndFieldService {
         
         Schema.DescribeSObjectResult r1 = DESCRIBEOBJECTS.get(objName).getDescribe();   
         
-        Object__c objectRecord = [SELECT Id, Name FROM Object__c WHERE Name = :r1.getName() LIMIT 1];
+        Object__c objectRecord = OBJECTS.get(objName);
         
         if(objectRecord == NULL)
         {
