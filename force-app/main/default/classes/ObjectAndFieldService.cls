@@ -1,11 +1,16 @@
 public class ObjectAndFieldService {
     
+    public static final Map<String, Schema.SObjectType> DESCRIBEOBJECTS;
+    static{
+        DESCRIBEOBJECTS = Schema.getGlobalDescribe(); 
+    }
+    
+    
     public static void getObjects()
     {
-        Map<String, Schema.SObjectType> gd = Schema.getGlobalDescribe(); 
         Set<String> standardObjects = new Set<String>();
         Set<String> customObjects = new Set<String>();
-        for(Schema.SObjectType d : gd.values())
+        for(Schema.SObjectType d : DESCRIBEOBJECTS.values())
         {
             Schema.DescribeSObjectResult ds = d.getDescribe();
             if(!ds.isCreateable())
@@ -29,10 +34,7 @@ public class ObjectAndFieldService {
     public static void getFieldsForObject(string objName)
     {            
         
-        Map<String, Schema.SObjectType> m = Schema.getGlobalDescribe() ;
-        Schema.SObjectType objectType = m.get(objName);
-        
-        Schema.DescribeSObjectResult r1 = objectType.getDescribe();   
+        Schema.DescribeSObjectResult r1 = DESCRIBEOBJECTS.get(objName).getDescribe();   
         
         Object__c objectRecord = [SELECT Id, Name FROM Object__c WHERE Name = :r1.getName() LIMIT 1];
         
@@ -79,7 +81,7 @@ public class ObjectAndFieldService {
     {
         if((f != null) && (objectName != null))
         {
-            Schema.DescribeSObjectResult objectDetails = Schema.getGlobalDescribe().get(objectName).getDescribe();   
+            Schema.DescribeSObjectResult objectDetails = DESCRIBEOBJECTS.get(objectName).getDescribe();   
             Schema.SObjectField fieldDetails = objectDetails.fields.getMap().get(f.name);
             
             Schema.DescribeFieldResult fieldResult = fieldDetails.getDescribe();    
@@ -99,7 +101,7 @@ public class ObjectAndFieldService {
     {            
         integer numberOfFields;
         try{
-            numberOfFields = Schema.getGlobalDescribe().get(objName).getDescribe().fields.getMap().values().size();   
+            numberOfFields = DESCRIBEOBJECTS.get(objName).getDescribe().fields.getMap().values().size();   
         }
         catch(Exception e)
         {
