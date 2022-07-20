@@ -14,29 +14,19 @@ public class ObjectAndFieldService {
         }
     }
     
-    public static void getObjects()
+    public static void getAndInsertAllObjectsFromSchema(Boolean createable)
     {
-        Set<String> standardObjects = new Set<String>();
-        Set<String> customObjects = new Set<String>();
+        List<Object__c> objects = new List<Object__c>();
         for(Schema.SObjectType d : DESCRIBEOBJECTS.values())
         {
             Schema.DescribeSObjectResult ds = d.getDescribe();
-            if(!ds.isCreateable())
-            continue;
-            if(ds.isCustom() == false && ds.getRecordTypeInfos().size() > 0)
-            standardObjects.add(ds.getName());
-            else if(ds.isCustom())
-            customObjects.add(ds.getName());
+            if(ds.isCreateable() == createable)
+            {
+                Object__c obj = new Object__c(Name = ds.name);
+                objects.add(obj);
+            }
         }
-        List<String> sortedNames = new List<String>(customObjects);
-        sortedNames.sort();
-        for(String name : sortedNames)
-        System.debug('Custom object: ' + name);
-        sortedNames = new List<String>(standardObjects);
-        sortedNames.sort();
-        for(String name : sortedNames)
-        System.debug('Standard object: ' + name);
-        
+        insert objects;
     }
     
     public static void getFieldsForObject(string objName)
