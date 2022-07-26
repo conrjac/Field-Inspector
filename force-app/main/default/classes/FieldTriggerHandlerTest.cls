@@ -15,4 +15,5 @@ private class FieldTriggerHandlerTest {
         Insert f;
         System.assertNotEquals(f.Id, Null, 'Field Record Insert Failed');
     }
+
 }
