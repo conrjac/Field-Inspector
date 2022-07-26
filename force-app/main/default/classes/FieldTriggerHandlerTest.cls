@@ -7,7 +7,7 @@ private class FieldTriggerHandlerTest {
         insert obj;
     }
 
-    @isTest 
+    @isTest
     private static void insertRecord()
     {
         Object__c accountObject = [SELECT Id FROM Object__c WHERE Name = 'Account' LIMIT 1];

@@ -1,6 +1,20 @@
 @isTest
 private class ObjectAndFieldServiceTest {
  
+   @testSetup static void setup() {
+        // Create common test accounts
+        List<Object__c> objects = new List<Object__c>();
+
+        for(string objectName : new List<String>{'Account','Contact','Case'})
+        {
+            objects.add(new Object__c(Name = objectName));
+        }
+
+        insert objects;    
+    }
+
+
+
 @isTest
     private static void testgetFieldsForObject()
     {
@@ -21,6 +35,29 @@ private class ObjectAndFieldServiceTest {
 
         objectRecord = ObjectAndFieldService.getObjectDetails(objectRecord);
         Test.stopTest();
-        System.assert(objectRecord.Custom__c != True, 'Account Objecy Should Be Standard');
+        System.assert(objectRecord.Custom__c != True, 'Account Object Should Be Standard');
     }
+
+
+    @isTest
+    private static void testOBJECTS()
+    {
+        Test.startTest();
+        List<Object__c> objectsFromDatabase = [SELECT Id FROM Object__c];
+        Map<String, Object__c> objectsFromClass = ObjectAndFieldService.OBJECTS;
+        Test.stopTest();
+     //   System.assertEquals(objectsFromDatabase, objectsFromClass.values(), 'Object results different');
+
+    }
+
+    @isTest
+    private static void testDESCRIBEOBJECTS()
+    {
+        Test.startTest();
+        Map<String, Schema.SObjectType>  describeObjectsFromClass = ObjectAndFieldService.DESCRIBEOBJECTS;
+        Map<String, Schema.SObjectType> describeObjectsFromSchema = Schema.getGlobalDescribe(); 
+        Test.stopTest();
+        System.assertEquals(describeObjectsFromClass, describeObjectsFromSchema, 'Schema results different');
+    }
+
 }
