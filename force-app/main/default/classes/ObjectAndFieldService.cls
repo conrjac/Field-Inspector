@@ -1,4 +1,4 @@
-public class ObjectAndFieldService {
+public without sharing class ObjectAndFieldService {
     
     public static final Map<String, Schema.SObjectType> DESCRIBEOBJECTS;
     static{
@@ -8,7 +8,7 @@ public class ObjectAndFieldService {
     public static final Map<String, Object__c> OBJECTS;
     static{
         OBJECTS = New Map<String, Object__c>();
-        For(Object__c obj : [SELECT Id, Name FROM Object__c])
+        For(Object__c obj : [SELECT Id, Name FROM Object__c WITH SECURITY_ENFORCED])
         {
             OBJECTS.put(obj.Name, obj);
         }
@@ -26,7 +26,10 @@ public class ObjectAndFieldService {
                 objects.add(obj);
             }
         }
-        insert objects;
+        
+        if (Schema.sObjectType.Object__c.isCreateable()) {
+            insert objects;
+        }
     }
     
     public static void getFieldsForObject(string objName)
@@ -59,15 +62,17 @@ public class ObjectAndFieldService {
             fields.add(f);
             
         }
-        
-        List<Database.SaveResult> insertResults = Database.insert(fields, false);
+        if (Schema.sObjectType.Field__c.isCreateable()) {
+            List<Database.SaveResult> insertResults = Database.insert(fields, false);
+        }
     }
     
     
     public static object__c getObjectDetails(object__c obj)
     {
         if(obj.Name != Null)
-        {        Schema.SObjectType objectType = Schema.getGlobalDescribe().get(obj.Name);
+        {        
+            Schema.SObjectType objectType = Schema.getGlobalDescribe().get(obj.Name);
             Schema.DescribeSObjectResult schemaObject = objectType.getDescribe();       
             obj.Label__c = schemaObject.getLabel();
             obj.Custom__c = schemaObject.isCustom();
