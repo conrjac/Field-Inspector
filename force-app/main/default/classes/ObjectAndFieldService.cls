@@ -13,16 +13,16 @@ public without sharing class ObjectAndFieldService {
             OBJECTS.put(obj.Name, obj);
         }
     }
-    
-    public static void getAndInsertAllObjectsFromSchema(Boolean createable)
+
+    public static void getAndInsertAllObjectsFromSchema(Boolean createable, Boolean custom)
     {
         List<Object__c> objects = new List<Object__c>();
         for(Schema.SObjectType d : DESCRIBEOBJECTS.values())
         {
             Schema.DescribeSObjectResult ds = d.getDescribe();
-            if(ds.isCreateable() == createable)
+            Object__c obj = new Object__c(Name = ds.name);
+            if((ds.isCreateable() == createable) || (ds.isCustom() == custom))
             {
-                Object__c obj = new Object__c(Name = ds.name);
                 objects.add(obj);
             }
         }
@@ -100,7 +100,6 @@ public without sharing class ObjectAndFieldService {
         return f;
     }
     
-    
     public static integer getFieldCountForObject(string objName)
     {           
         if(OBJECTS.containsKey(objName))
@@ -129,5 +128,4 @@ public without sharing class ObjectAndFieldService {
             return null;
         }
     }
-    
 }
